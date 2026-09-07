@@ -63,8 +63,6 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case DUAL_FUNC_1:
             return TAPPING_TERM -25;
-        case LT(1, KC_SPACE):
-            return TAPPING_TERM + 50;
         case DUAL_FUNC_3:
             return TAPPING_TERM -25;
         case DUAL_FUNC_4:
@@ -74,6 +72,17 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     }
 }
 
+bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        // Keep these layer-taps release-based (Permissive Hold), rather than
+        // immediately activating the layer when another key is pressed.
+        case LT(1, KC_SPACE):
+        case LT(2, KC_ENTER):
+            return false;
+        default:
+            return true;
+    }
+}
 
 
 extern rgb_config_t rgb_matrix_config;
