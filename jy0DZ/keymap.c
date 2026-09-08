@@ -75,10 +75,13 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
 
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        // Keep these layer-taps release-based (Permissive Hold), rather than
-        // immediately activating the layer when another key is pressed.
+        // Keep these dual-role keys release-based (Permissive Hold), rather
+        // than activating their hold action when another key is pressed.
         case LT(1, KC_SPACE):
         case LT(2, KC_ENTER):
+        case MT(MOD_RALT, KC_QUOTE):
+        case ALL_T(KC_BSPC):
+        case MT(MOD_LALT, KC_BSPC):
             return false;
         default:
             return true;
@@ -87,10 +90,31 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
 
 extern rgb_config_t rgb_matrix_config;
 
+// The Choc switch housings and keycaps alter the apparent LED balance.
+// Tune these percentages after flashing if a channel still looks too weak/strong.
+#define VOYAGER_LED_RED_GAIN_PERCENT   110
+#define VOYAGER_LED_GREEN_GAIN_PERCENT 115
+#define VOYAGER_LED_BLUE_GAIN_PERCENT  125
+
+static uint8_t compensate_led_channel(uint8_t channel, uint8_t gain_percent) {
+  const uint16_t corrected = ((uint16_t)channel * gain_percent + 50) / 100;
+  return corrected > UINT8_MAX ? UINT8_MAX : corrected;
+}
+
+// Apply the Voyager's optical compensation to each RGB Matrix LED color.
+static RGB compensate_voyager_led_color(RGB rgb) {
+  return (RGB){
+    .r = compensate_led_channel(rgb.r, VOYAGER_LED_RED_GAIN_PERCENT),
+    .g = compensate_led_channel(rgb.g, VOYAGER_LED_GREEN_GAIN_PERCENT),
+    .b = compensate_led_channel(rgb.b, VOYAGER_LED_BLUE_GAIN_PERCENT),
+  };
+}
+
 RGB hsv_to_rgb_with_value(HSV hsv) {
-  RGB rgb = hsv_to_rgb( hsv );
-  float f = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
-  return (RGB){ f * rgb.r, f * rgb.g, f * rgb.b };
+  RGB rgb = hsv_to_rgb(hsv);
+  const float brightness = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
+  rgb = (RGB){ brightness * rgb.r, brightness * rgb.g, brightness * rgb.b };
+  return compensate_voyager_led_color(rgb);
 }
 
 void keyboard_post_init_user(void) {
@@ -120,6 +144,7 @@ void set_layer_color(int layer) {
     if (!hsv.h && !hsv.s && !hsv.v) {
         rgb_matrix_set_color( i, 0, 0, 0 );
     } else {
+        // Every layer-mapped LED passes through the same optical correction.
         RGB rgb = hsv_to_rgb_with_value(hsv);
         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
     }
@@ -164,8 +189,35 @@ bool rgb_matrix_indicators_user(void) {
 
 
 
+static bool shifted_backspace_as_delete = false;
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
+  case KC_BSPC:
+  case ALL_T(KC_BSPC):
+  case MT(MOD_LALT, KC_BSPC):
+    // Only intercept taps; let QMK handle Hyper/Alt holds normally.
+    if (keycode != KC_BSPC && record->tap.count == 0) {
+      return true;
+    }
+    if (record->event.pressed) {
+      if (get_mods() & MOD_MASK_SHIFT) {
+        // Send an unmodified Delete, then restore the held Shift state.
+        const uint8_t mods = get_mods();
+        shifted_backspace_as_delete = true;
+        del_mods(MOD_MASK_SHIFT);
+        send_keyboard_report();
+        tap_code(KC_DELETE);
+        set_mods(mods);
+        send_keyboard_report();
+        return false;
+      }
+    } else if (shifted_backspace_as_delete) {
+      shifted_backspace_as_delete = false;
+      return false;
+    }
+    break;
+
   case QK_MODS ... QK_MODS_MAX:
     // Mouse and consumer keys (volume, media) with modifiers work inconsistently across operating systems,
     // this makes sure that modifiers are always applied to the key that was pressed.
