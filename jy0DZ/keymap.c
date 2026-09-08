@@ -91,7 +91,8 @@ extern rgb_config_t rgb_matrix_config;
 // The Choc switch housings and keycaps alter the apparent LED balance.
 // Tune these percentages after flashing if a channel still looks too
 // weak/strong.
-#define VOYAGER_LED_RED_GAIN_PERCENT 80
+#define VOYAGER_LED_RED_GAIN_PERCENT 90
+#define VOYAGER_LED_NEAR_WHITE_RED_GAIN_PERCENT 70
 #define VOYAGER_LED_GREEN_GAIN_PERCENT 115
 #define VOYAGER_LED_BLUE_GAIN_PERCENT 115
 
@@ -102,10 +103,12 @@ static uint8_t compensate_led_channel(uint8_t channel, uint8_t gain_percent) {
 
 // Apply the Voyager's optical compensation to each RGB Matrix LED color.
 static RGB compensate_voyager_led_color(RGB rgb) {
+  const bool near_white = rgb.r >= 0xF0 && rgb.g >= 0xF0 && rgb.b >= 0xF0;
+  const uint8_t red_gain = near_white ? VOYAGER_LED_NEAR_WHITE_RED_GAIN_PERCENT
+                                      : VOYAGER_LED_RED_GAIN_PERCENT;
   return (RGB){
-      .r = rgb.r >= 0xF0 && !(rgb.g >= 0xF0 && rgb.b >= 0xF0)
-               ? rgb.r
-               : compensate_led_channel(rgb.r, VOYAGER_LED_RED_GAIN_PERCENT),
+      .r = rgb.r >= 0xF0 && !near_white ? rgb.r
+                                         : compensate_led_channel(rgb.r, red_gain),
       .g = compensate_led_channel(rgb.g, VOYAGER_LED_GREEN_GAIN_PERCENT),
       .b = compensate_led_channel(rgb.b, VOYAGER_LED_BLUE_GAIN_PERCENT),
   };
