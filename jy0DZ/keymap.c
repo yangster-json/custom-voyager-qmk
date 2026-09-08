@@ -11,13 +11,13 @@ enum custom_keycodes {
 
 
 
-#define DUAL_FUNC_0 LT(9, KC_Q)
-#define DUAL_FUNC_1 LT(12, KC_Y)
-#define DUAL_FUNC_2 LT(1, KC_F13)
-#define DUAL_FUNC_3 LT(12, KC_S)
-#define DUAL_FUNC_4 LT(7, KC_F16)
-#define DUAL_FUNC_5 LT(8, KC_F3)
-#define DUAL_FUNC_6 LT(15, KC_F16)
+#define DUAL_FUNC_0 LT(15, KC_W)
+#define DUAL_FUNC_1 LT(3, KC_Y)
+#define DUAL_FUNC_2 LT(11, KC_F6)
+#define DUAL_FUNC_3 LT(2, KC_F14)
+#define DUAL_FUNC_4 LT(11, KC_J)
+#define DUAL_FUNC_5 LT(15, KC_F11)
+#define DUAL_FUNC_6 LT(13, KC_C)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_voyager(
@@ -31,7 +31,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_NO,          KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
     KC_TRANSPARENT, KC_EXLM,        KC_AT,          KC_HASH,        KC_DLR,         KC_PERC,                                        KC_CIRC,        KC_AMPR,        KC_ASTR,        KC_MINUS,       KC_UNDS,        DUAL_FUNC_4,    
     KC_TRANSPARENT, KC_1,           KC_2,           KC_3,           KC_4,           KC_5,                                           KC_6,           KC_7,           KC_8,           KC_9,           KC_0,           KC_TRANSPARENT, 
-    KC_TRANSPARENT, DUAL_FUNC_4,    KC_GRAVE,       KC_BSLS,        KC_LCBR,        KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_RCBR,        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
+    KC_TRANSPARENT, KC_TRANSPARENT, KC_GRAVE,       KC_BSLS,        KC_LCBR,        KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_RCBR,        KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
                                                     KC_TRANSPARENT, KC_TRANSPARENT,                                 KC_TRANSPARENT, KC_TRANSPARENT
   ),
   [2] = LAYOUT_voyager(
@@ -64,10 +64,6 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case DUAL_FUNC_0:
             return TAPPING_TERM -25;
         case DUAL_FUNC_2:
-            return TAPPING_TERM -25;
-        case LT(1, KC_SPACE):
-            return TAPPING_TERM + 50;
-        case DUAL_FUNC_4:
             return TAPPING_TERM -25;
         default:
             return TAPPING_TERM;
