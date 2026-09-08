@@ -103,8 +103,9 @@ static uint8_t compensate_led_channel(uint8_t channel, uint8_t gain_percent) {
 // Apply the Voyager's optical compensation to each RGB Matrix LED color.
 static RGB compensate_voyager_led_color(RGB rgb) {
   return (RGB){
-      .r = rgb.r >= 0xF0 ? rgb.r
-                        : compensate_led_channel(rgb.r, VOYAGER_LED_RED_GAIN_PERCENT),
+      .r = rgb.r >= 0xF0 && !(rgb.g >= 0xF0 && rgb.b >= 0xF0)
+               ? rgb.r
+               : compensate_led_channel(rgb.r, VOYAGER_LED_RED_GAIN_PERCENT),
       .g = compensate_led_channel(rgb.g, VOYAGER_LED_GREEN_GAIN_PERCENT),
       .b = compensate_led_channel(rgb.b, VOYAGER_LED_BLUE_GAIN_PERCENT),
   };
