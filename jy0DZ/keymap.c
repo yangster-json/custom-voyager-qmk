@@ -91,7 +91,7 @@ extern rgb_config_t rgb_matrix_config;
 // The Choc switch housings and keycaps alter the apparent LED balance.
 // Tune these percentages after flashing if a channel still looks too
 // weak/strong.
-#define VOYAGER_LED_RED_GAIN_PERCENT 90
+#define VOYAGER_LED_RED_GAIN_PERCENT 80
 #define VOYAGER_LED_GREEN_GAIN_PERCENT 115
 #define VOYAGER_LED_BLUE_GAIN_PERCENT 115
 
