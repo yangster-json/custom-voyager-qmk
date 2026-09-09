@@ -75,12 +75,7 @@ jobs:
         run: |
           git fetch origin main
           git checkout -B main origin/main
-          if ! git merge --no-commit --no-ff -Xignore-all-space oryx; then
-            ./scripts/resolve-oryx-config-conflict.sh
-          fi
-          if git rev-parse -q --verify MERGE_HEAD > /dev/null; then
-            git commit -m "Merge latest Oryx layout while preserving custom behavior"
-          fi
+          git merge -Xignore-all-space oryx
           git push
 
       - name: Update QMK firmware submodule to latest version (${{ steps.download-layout-source.outputs.firmware_version }})
