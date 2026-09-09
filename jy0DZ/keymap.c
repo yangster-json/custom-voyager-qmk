@@ -185,6 +185,19 @@ bool rgb_matrix_indicators_user(void) {
 
 static bool shifted_backspace_as_delete = false;
 
+static void toggle_caps_lock_if_other_shift_held(uint8_t other_shift) {
+  const uint8_t mods = get_mods();
+  if (!(mods & other_shift)) {
+    return;
+  }
+
+  del_mods(MOD_MASK_SHIFT);
+  send_keyboard_report();
+  tap_code(KC_CAPS_LOCK);
+  set_mods(mods);
+  send_keyboard_report();
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
   case KC_BSPC:
@@ -239,6 +252,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
         if (record->event.pressed) {
           register_code16(KC_LEFT_SHIFT);
+          toggle_caps_lock_if_other_shift_held(MOD_BIT(KC_RIGHT_SHIFT));
         } else {
           unregister_code16(KC_LEFT_SHIFT);
         }  
@@ -254,6 +268,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
         if (record->event.pressed) {
           register_code16(KC_RIGHT_SHIFT);
+          toggle_caps_lock_if_other_shift_held(MOD_BIT(KC_LEFT_SHIFT));
         } else {
           unregister_code16(KC_RIGHT_SHIFT);
         }  
