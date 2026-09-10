@@ -1,5 +1,4 @@
 #include QMK_KEYBOARD_H
-#include "os_detection.h"
 #include "version.h"
 #define MOON_LED_LEVEL LED_LEVEL
 #ifndef ZSA_SAFE_RANGE
@@ -20,7 +19,8 @@ enum custom_keycodes {
 #define DUAL_FUNC_5 LT(13, KC_W)
 #define DUAL_FUNC_6 LT(8, KC_C)
 #define DUAL_FUNC_7 LT(13, KC_F15)
-#define TAB_WM_MOD MT(MOD_LGUI, KC_TAB)
+
+#include "custom.inc"
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_voyager(
@@ -28,7 +28,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_HYPR,        KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,           KC_O,           KC_P,           KC_RIGHT_CTRL,  
     MT(MOD_LCTL, KC_ESCAPE),KC_A,           KC_S,           KC_D,           KC_F,           KC_G,                                           KC_H,           KC_J,           KC_K,           KC_L,           KC_SCLN,        MT(MOD_RALT, KC_QUOTE),
     DUAL_FUNC_0,    KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMMA,       KC_DOT,         KC_SLASH,       DUAL_FUNC_1,    
-                                                    MT(MOD_LSFT, KC_BSPC),TAB_WM_MOD,                                           LT(2, KC_ENTER),LT(1, KC_SPACE)
+                                                    MT(MOD_LSFT, KC_BSPC),MT(MOD_LGUI, KC_TAB),                                LT(2, KC_ENTER),LT(1, KC_SPACE)
   ),
   [1] = LAYOUT_voyager(
     KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_NO,                                          KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
@@ -77,55 +77,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 
 
-bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-  // Keep these dual-role keys release-based (Permissive Hold), rather
-  // than activating their hold action when another key is pressed.
-  case LT(1, KC_SPACE):
-  case LT(2, KC_ENTER):
-  case MT(MOD_RALT, KC_QUOTE):
-  case ALL_T(KC_BSPC):
-  case MT(MOD_LALT, KC_BSPC):
-    return false;
-  default:
-    return true;
-  }
-}
-
 
 extern rgb_config_t rgb_matrix_config;
 
-// The Choc switch housings and keycaps alter the apparent LED balance.
-// Tune these percentages after flashing if a channel still looks too
-// weak/strong.
-#define VOYAGER_LED_RED_GAIN_PERCENT 90
-#define VOYAGER_LED_NEAR_WHITE_RED_GAIN_PERCENT 70
-#define VOYAGER_LED_GREEN_GAIN_PERCENT 115
-#define VOYAGER_LED_BLUE_GAIN_PERCENT 115
-
-static uint8_t compensate_led_channel(uint8_t channel, uint8_t gain_percent) {
-  const uint16_t corrected = ((uint16_t)channel * gain_percent + 50) / 100;
-  return corrected > UINT8_MAX ? UINT8_MAX : corrected;
-}
-
-// Apply the Voyager's optical compensation to each RGB Matrix LED color.
-static RGB compensate_voyager_led_color(RGB rgb) {
-  const bool near_white = rgb.r >= 0xF0 && rgb.g >= 0xF0 && rgb.b >= 0xF0;
-  const uint8_t red_gain = near_white ? VOYAGER_LED_NEAR_WHITE_RED_GAIN_PERCENT
-                                      : VOYAGER_LED_RED_GAIN_PERCENT;
-  return (RGB){
-      .r = rgb.r >= 0xF0 && !near_white ? rgb.r
-                                         : compensate_led_channel(rgb.r, red_gain),
-      .g = compensate_led_channel(rgb.g, VOYAGER_LED_GREEN_GAIN_PERCENT),
-      .b = compensate_led_channel(rgb.b, VOYAGER_LED_BLUE_GAIN_PERCENT),
-  };
-}
-
 RGB hsv_to_rgb_with_value(HSV hsv) {
-  RGB rgb = hsv_to_rgb(hsv);
-  const float brightness = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
-  rgb = (RGB){brightness * rgb.r, brightness * rgb.g, brightness * rgb.b};
-  return compensate_voyager_led_color(rgb);
+  RGB rgb = hsv_to_rgb( hsv );
+  float f = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
+  return (RGB){ f * rgb.r, f * rgb.g, f * rgb.b };
 }
 
 void keyboard_post_init_user(void) {
@@ -209,49 +167,8 @@ bool rgb_matrix_indicators_user(void) {
 
 
 
-static bool shifted_backspace_as_delete = false;
-static uint16_t tab_wm_mod_keycode = KC_LEFT_GUI;
-
-static void toggle_caps_lock_if_other_shift_held(uint8_t other_shift) {
-  const uint8_t mods = get_mods();
-  if (!(mods & other_shift)) {
-    return;
-  }
-
-  del_mods(MOD_MASK_SHIFT);
-  send_keyboard_report();
-  tap_code(KC_CAPS_LOCK);
-  set_mods(mods);
-  send_keyboard_report();
-}
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
-  case KC_BSPC:
-  case ALL_T(KC_BSPC):
-  case MT(MOD_LALT, KC_BSPC):
-    // Only intercept taps; let QMK handle Hyper/Alt holds normally.
-    if (keycode != KC_BSPC && record->tap.count == 0) {
-      return true;
-    }
-    if (record->event.pressed) {
-      if (get_mods() & MOD_MASK_SHIFT) {
-        // Send an unmodified Delete, then restore the held Shift state.
-        const uint8_t mods = get_mods();
-        shifted_backspace_as_delete = true;
-        del_mods(MOD_MASK_SHIFT);
-        send_keyboard_report();
-        tap_code(KC_DELETE);
-        set_mods(mods);
-        send_keyboard_report();
-        return false;
-      }
-    } else if (shifted_backspace_as_delete) {
-      shifted_backspace_as_delete = false;
-      return false;
-    }
-    break;
-
   case QK_MODS ... QK_MODS_MAX:
     // Mouse and consumer keys (volume, media) with modifiers work inconsistently across operating systems,
     // this makes sure that modifiers are always applied to the key that was pressed.
@@ -279,7 +196,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
         if (record->event.pressed) {
           register_code16(KC_LEFT_SHIFT);
-          toggle_caps_lock_if_other_shift_held(MOD_BIT(KC_RIGHT_SHIFT));
         } else {
           unregister_code16(KC_LEFT_SHIFT);
         }  
@@ -295,27 +211,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       } else {
         if (record->event.pressed) {
           register_code16(KC_RIGHT_SHIFT);
-          toggle_caps_lock_if_other_shift_held(MOD_BIT(KC_LEFT_SHIFT));
         } else {
           unregister_code16(KC_RIGHT_SHIFT);
         }  
       }  
-      return false;
-    case TAB_WM_MOD:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_TAB);
-        } else {
-          unregister_code16(KC_TAB);
-        }
-      } else {
-        if (record->event.pressed) {
-          tab_wm_mod_keycode = detected_host_os() == OS_WINDOWS ? KC_LEFT_ALT : KC_LEFT_GUI;
-          register_code16(tab_wm_mod_keycode);
-        } else {
-          unregister_code16(tab_wm_mod_keycode);
-        }
-      }
       return false;
     case DUAL_FUNC_2:
       if (record->tap.count > 0) {
