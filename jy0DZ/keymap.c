@@ -1,4 +1,5 @@
 #include QMK_KEYBOARD_H
+#include "os_detection.h"
 #include "version.h"
 #define MOON_LED_LEVEL LED_LEVEL
 #ifndef ZSA_SAFE_RANGE
@@ -19,6 +20,7 @@ enum custom_keycodes {
 #define DUAL_FUNC_5 LT(12, KC_W)
 #define DUAL_FUNC_6 LT(9, KC_R)
 #define DUAL_FUNC_7 LT(10, KC_F12)
+#define TAB_WM_MOD MT(MOD_LGUI, KC_TAB)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_voyager(
@@ -26,7 +28,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_HYPR,        KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,           KC_O,           KC_P,           KC_RIGHT_CTRL,  
     MT(MOD_LCTL, KC_ESCAPE),KC_A,           KC_S,           KC_D,           KC_F,           KC_G,                                           KC_H,           KC_J,           KC_K,           KC_L,           KC_SCLN,        MT(MOD_RALT, KC_QUOTE),
     DUAL_FUNC_0,    KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMMA,       KC_DOT,         KC_SLASH,       DUAL_FUNC_1,    
-                                                    MT(MOD_LALT, KC_BSPC),MT(MOD_LGUI, KC_TAB),                                LT(2, KC_ENTER),LT(1, KC_SPACE)
+                                                    MT(MOD_LALT, KC_BSPC),TAB_WM_MOD,                                           LT(2, KC_ENTER),LT(1, KC_SPACE)
   ),
   [1] = LAYOUT_voyager(
     KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_NO,                                          KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
@@ -184,6 +186,7 @@ bool rgb_matrix_indicators_user(void) {
 
 
 static bool shifted_backspace_as_delete = false;
+static uint16_t tab_wm_mod_keycode = KC_LEFT_GUI;
 
 static void toggle_caps_lock_if_other_shift_held(uint8_t other_shift) {
   const uint8_t mods = get_mods();
@@ -273,6 +276,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           unregister_code16(KC_RIGHT_SHIFT);
         }  
       }  
+      return false;
+    case TAB_WM_MOD:
+      if (record->tap.count > 0) {
+        if (record->event.pressed) {
+          register_code16(KC_TAB);
+        } else {
+          unregister_code16(KC_TAB);
+        }
+      } else {
+        if (record->event.pressed) {
+          tab_wm_mod_keycode = detected_host_os() == OS_WINDOWS ? KC_LEFT_ALT : KC_LEFT_GUI;
+          register_code16(tab_wm_mod_keycode);
+        } else {
+          unregister_code16(tab_wm_mod_keycode);
+        }
+      }
       return false;
     case DUAL_FUNC_2:
       if (record->tap.count > 0) {
