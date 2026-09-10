@@ -86,18 +86,6 @@ bool rgb_matrix_indicators_user(void) {
 static bool shifted_backspace_as_delete = false;
 static uint16_t tab_wm_mod_keycode = KC_LEFT_GUI;
 
-static void toggle_caps_lock_if_other_shift_held(uint8_t other_shift) {
-  const uint8_t mods = get_mods();
-  if (!(mods & other_shift)) {
-    return;
-  }
-  del_mods(MOD_MASK_SHIFT);
-  send_keyboard_report();
-  tap_code(KC_CAPS_LOCK);
-  set_mods(mods);
-  send_keyboard_report();
-}
-
 static bool process_custom_record(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case KC_BSPC:
@@ -134,26 +122,6 @@ static bool process_custom_record(uint16_t keycode, keyrecord_t *record) {
         del_mods(QK_MODS_GET_MODS(keycode));
       }
       return true;
-    case DUAL_FUNC_0:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) register_code16(KC_LPRN); else unregister_code16(KC_LPRN);
-      } else if (record->event.pressed) {
-        register_code16(KC_LEFT_SHIFT);
-        toggle_caps_lock_if_other_shift_held(MOD_BIT(KC_RIGHT_SHIFT));
-      } else {
-        unregister_code16(KC_LEFT_SHIFT);
-      }
-      return false;
-    case DUAL_FUNC_1:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) register_code16(KC_RPRN); else unregister_code16(KC_RPRN);
-      } else if (record->event.pressed) {
-        register_code16(KC_RIGHT_SHIFT);
-        toggle_caps_lock_if_other_shift_held(MOD_BIT(KC_LEFT_SHIFT));
-      } else {
-        unregister_code16(KC_RIGHT_SHIFT);
-      }
-      return false;
     case MT(MOD_LGUI, KC_TAB):
       if (record->tap.count > 0) {
         if (record->event.pressed) register_code16(KC_TAB); else unregister_code16(KC_TAB);
@@ -162,60 +130,6 @@ static bool process_custom_record(uint16_t keycode, keyrecord_t *record) {
         register_code16(tab_wm_mod_keycode);
       } else {
         unregister_code16(tab_wm_mod_keycode);
-      }
-      return false;
-    case DUAL_FUNC_2:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) register_code16(KC_GRAVE); else unregister_code16(KC_GRAVE);
-      } else if (record->event.pressed) {
-        register_code16(KC_TILD);
-      } else {
-        unregister_code16(KC_TILD);
-      }
-      return false;
-    case DUAL_FUNC_3:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) register_code16(KC_MINUS); else unregister_code16(KC_MINUS);
-      } else if (record->event.pressed) {
-        register_code16(KC_UNDS);
-      } else {
-        unregister_code16(KC_UNDS);
-      }
-      return false;
-    case DUAL_FUNC_4:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) register_code16(KC_EQUAL); else unregister_code16(KC_EQUAL);
-      } else if (record->event.pressed) {
-        register_code16(KC_PLUS);
-      } else {
-        unregister_code16(KC_PLUS);
-      }
-      return false;
-    case DUAL_FUNC_5:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) register_code16(KC_BSLS); else unregister_code16(KC_BSLS);
-      } else if (record->event.pressed) {
-        register_code16(KC_PIPE);
-      } else {
-        unregister_code16(KC_PIPE);
-      }
-      return false;
-    case DUAL_FUNC_6:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) register_code16(LCTL(KC_C)); else unregister_code16(LCTL(KC_C));
-      } else if (record->event.pressed) {
-        register_code16(LCTL(LSFT(KC_C)));
-      } else {
-        unregister_code16(LCTL(LSFT(KC_C)));
-      }
-      return false;
-    case DUAL_FUNC_7:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) register_code16(LCTL(KC_V)); else unregister_code16(LCTL(KC_V));
-      } else if (record->event.pressed) {
-        register_code16(LCTL(LSFT(KC_V)));
-      } else {
-        unregister_code16(LCTL(LSFT(KC_V)));
       }
       return false;
     default:
