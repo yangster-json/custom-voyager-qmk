@@ -87,7 +87,6 @@ bool rgb_matrix_indicators_user(void) {
   return true;
 }
 
-static bool shifted_backspace_as_delete = false;
 static uint16_t tab_wm_mod_keycode = KC_LEFT_GUI;
 
 static bool is_windows_or_macos(void) {
@@ -207,27 +206,6 @@ static bool process_custom_record(uint16_t keycode, keyrecord_t *record) {
       return process_os_aware_home_row_mod(record, KC_L, MOD_BIT_RALT, MOD_BIT_RGUI);
     case MT(MOD_RCTL, KC_SCLN):
       return process_os_aware_home_row_mod(record, KC_SCLN, MOD_BIT_RCTL, MOD_BIT_RCTL);
-    case KC_BSPC:
-    case ALL_T(KC_BSPC):
-    case MT(MOD_LALT, KC_BSPC):
-      if (keycode != KC_BSPC && record->tap.count == 0) {
-        return true;
-      }
-      if (record->event.pressed && (get_mods() & MOD_MASK_SHIFT)) {
-        const uint8_t mods = get_mods();
-        shifted_backspace_as_delete = true;
-        del_mods(MOD_MASK_SHIFT);
-        send_keyboard_report();
-        tap_code(KC_DELETE);
-        set_mods(mods);
-        send_keyboard_report();
-        return false;
-      }
-      if (!record->event.pressed && shifted_backspace_as_delete) {
-        shifted_backspace_as_delete = false;
-        return false;
-      }
-      return true;
     case QK_MODS ... QK_MODS_MAX:
       if (IS_MOUSE_KEYCODE(QK_MODS_GET_BASIC_KEYCODE(keycode)) || IS_CONSUMER_KEYCODE(QK_MODS_GET_BASIC_KEYCODE(keycode))) {
         if (record->event.pressed) {
