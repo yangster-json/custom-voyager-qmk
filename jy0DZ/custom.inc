@@ -109,9 +109,17 @@ static bool is_home_row_mod(uint16_t keycode) {
   }
 }
 
+static bool is_thumb_cluster_key(keyrecord_t *record) {
+  const uint8_t row = record->event.key.row;
+  const uint8_t col = record->event.key.col;
+  return (row == 5 && (col == 0 || col == 1)) ||
+         (row == 11 && (col == 5 || col == 6));
+}
+
 bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record,
                       uint16_t other_keycode, keyrecord_t *other_record) {
-  if (is_home_row_mod(tap_hold_keycode) && is_home_row_mod(other_keycode)) {
+  if (is_thumb_cluster_key(tap_hold_record) || is_thumb_cluster_key(other_record) ||
+      (is_home_row_mod(tap_hold_keycode) && is_home_row_mod(other_keycode))) {
     return true;
   }
   return get_chordal_hold_default(tap_hold_record, other_record);
