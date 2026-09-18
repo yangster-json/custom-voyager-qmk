@@ -156,13 +156,6 @@ bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
   }
 }
 
-uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t *record, uint16_t prev_keycode) {
-  if (keycode == LT(3, KC_SPACE) || keycode == LT(5, KC_SPACE)) {
-    return 75;
-  }
-  return is_flow_tap_key(keycode) && is_flow_tap_key(prev_keycode) ? FLOW_TAP_TERM : 0;
-}
-
 static bool process_custom_record(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case LT(3, KC_SPACE):
