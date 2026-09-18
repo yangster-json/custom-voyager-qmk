@@ -7,10 +7,10 @@ bool oryx_process_record_user(uint16_t keycode, keyrecord_t *record);
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case MT(MOD_LCTL, KC_S):
-    case MT(MOD_LALT, KC_D):
-    case MT(MOD_LGUI, KC_F):
-    case MT(MOD_RGUI, KC_J):
-    case MT(MOD_RALT, KC_K):
+    case MT(MOD_LGUI, KC_D):
+    case MT(MOD_LALT, KC_F):
+    case MT(MOD_RALT, KC_J):
+    case MT(MOD_RGUI, KC_K):
     case MT(MOD_RCTL, KC_L):
     case MT(MOD_RALT, KC_QUOTE):
     case ALL_T(KC_BSPC):
@@ -95,36 +95,6 @@ static bool is_windows_or_macos(void) {
   return host_os == OS_WINDOWS || host_os == OS_MACOS;
 }
 
-static bool is_home_row_mod(uint16_t keycode) {
-  switch (keycode) {
-    case MT(MOD_LCTL, KC_S):
-    case MT(MOD_LALT, KC_D):
-    case MT(MOD_LGUI, KC_F):
-    case MT(MOD_RGUI, KC_J):
-    case MT(MOD_RALT, KC_K):
-    case MT(MOD_RCTL, KC_L):
-      return true;
-    default:
-      return false;
-  }
-}
-
-static bool is_thumb_cluster_key(keyrecord_t *record) {
-  const uint8_t row = record->event.key.row;
-  const uint8_t col = record->event.key.col;
-  return (row == 5 && (col == 0 || col == 1)) ||
-         (row == 11 && (col == 5 || col == 6));
-}
-
-bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record,
-                      uint16_t other_keycode, keyrecord_t *other_record) {
-  if (is_thumb_cluster_key(tap_hold_record) || is_thumb_cluster_key(other_record) ||
-      (is_home_row_mod(tap_hold_keycode) && is_home_row_mod(other_keycode))) {
-    return true;
-  }
-  return get_chordal_hold_default(tap_hold_record, other_record);
-}
-
 static bool process_os_aware_home_row_mod(keyrecord_t *record, uint16_t tap_keycode, uint8_t linux_mod, uint8_t windows_macos_mod) {
   if (record->tap.count > 0) {
     if (record->event.pressed) {
@@ -179,14 +149,14 @@ static bool process_custom_record(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case LT(3, KC_SPACE):
       return process_os_aware_space_layer(record);
-    case MT(MOD_LALT, KC_D):
-      return process_os_aware_home_row_mod(record, KC_D, MOD_LALT, MOD_LGUI);
-    case MT(MOD_LGUI, KC_F):
-      return process_os_aware_home_row_mod(record, KC_F, MOD_LGUI, MOD_LALT);
-    case MT(MOD_RGUI, KC_J):
-      return process_os_aware_home_row_mod(record, KC_J, MOD_RGUI, MOD_RALT);
-    case MT(MOD_RALT, KC_K):
-      return process_os_aware_home_row_mod(record, KC_K, MOD_RALT, MOD_RGUI);
+    case MT(MOD_LGUI, KC_D):
+      return process_os_aware_home_row_mod(record, KC_D, MOD_LGUI, MOD_LALT);
+    case MT(MOD_LALT, KC_F):
+      return process_os_aware_home_row_mod(record, KC_F, MOD_LALT, MOD_LGUI);
+    case MT(MOD_RALT, KC_J):
+      return process_os_aware_home_row_mod(record, KC_J, MOD_RALT, MOD_RGUI);
+    case MT(MOD_RGUI, KC_K):
+      return process_os_aware_home_row_mod(record, KC_K, MOD_RGUI, MOD_RALT);
     case KC_BSPC:
     case ALL_T(KC_BSPC):
     case MT(MOD_LALT, KC_BSPC):

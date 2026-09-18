@@ -18,7 +18,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_voyager(
     KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, TG(1),          TG(2),                                          OSL(6),         KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, KC_TRANSPARENT, 
     KC_TRANSPARENT, KC_Q,           KC_W,           KC_E,           KC_R,           KC_T,                                           KC_Y,           KC_U,           KC_I,           KC_O,           KC_P,           KC_TRANSPARENT, 
-    KC_TRANSPARENT, KC_A,           MT(MOD_LCTL, KC_S),MT(MOD_LALT, KC_D),MT(MOD_LGUI, KC_F),KC_G,                                           KC_H,           MT(MOD_RGUI, KC_J),MT(MOD_RALT, KC_K),MT(MOD_RCTL, KC_L),KC_SCLN,        KC_TRANSPARENT, 
+    KC_TRANSPARENT, KC_A,           MT(MOD_LCTL, KC_S),MT(MOD_LGUI, KC_D),MT(MOD_LALT, KC_F),KC_G,                                           KC_H,           MT(MOD_RALT, KC_J),MT(MOD_RGUI, KC_K),MT(MOD_RCTL, KC_L),KC_SCLN,        KC_TRANSPARENT,
     KC_TRANSPARENT, KC_Z,           KC_X,           KC_C,           KC_V,           KC_B,                                           KC_N,           KC_M,           KC_COMMA,       KC_DOT,         KC_SLASH,       KC_TRANSPARENT, 
                                                     MT(MOD_LSFT, KC_BSPC),LT(5, KC_DELETE),                                LT(5, KC_ENTER),LT(3, KC_SPACE)
   ),
@@ -68,10 +68,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 
 const uint16_t PROGMEM combo0[] = { KC_R, KC_T, COMBO_END};
-const uint16_t PROGMEM combo1[] = { MT(MOD_LGUI, KC_F), KC_G, COMBO_END};
+const uint16_t PROGMEM combo1[] = { MT(MOD_LALT, KC_F), KC_G, COMBO_END};
 const uint16_t PROGMEM combo2[] = { KC_V, KC_B, COMBO_END};
 const uint16_t PROGMEM combo3[] = { KC_Y, KC_U, COMBO_END};
-const uint16_t PROGMEM combo4[] = { KC_H, MT(MOD_RGUI, KC_J), COMBO_END};
+const uint16_t PROGMEM combo4[] = { KC_H, MT(MOD_RALT, KC_J), COMBO_END};
 const uint16_t PROGMEM combo5[] = { KC_N, KC_M, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
@@ -87,25 +87,17 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case MT(MOD_LCTL, KC_S):
             return TAPPING_TERM + 50;
-        case MT(MOD_LALT, KC_D):
+        case MT(MOD_LGUI, KC_D):
             return TAPPING_TERM + 50;
-        case MT(MOD_LGUI, KC_F):
+        case MT(MOD_LALT, KC_F):
             return TAPPING_TERM + 50;
-        case MT(MOD_RGUI, KC_J):
+        case MT(MOD_RALT, KC_J):
             return TAPPING_TERM + 50;
-        case MT(MOD_RALT, KC_K):
+        case MT(MOD_RGUI, KC_K):
             return TAPPING_TERM + 50;
         case MT(MOD_RCTL, KC_L):
             return TAPPING_TERM + 50;
         case MT(MOD_LGUI, KC_J):
-            return TAPPING_TERM + 300;
-        case MT(MOD_LGUI, KC_D):
-            return TAPPING_TERM + 300;
-        case MT(MOD_LALT, KC_F):
-            return TAPPING_TERM + 300;
-        case MT(MOD_RALT, KC_J):
-            return TAPPING_TERM + 300;
-        case MT(MOD_RGUI, KC_K):
             return TAPPING_TERM + 300;
         case MT(MOD_LCTL, KC_2):
             return TAPPING_TERM + 50;
