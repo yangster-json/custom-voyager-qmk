@@ -163,13 +163,13 @@ static bool process_custom_record(uint16_t keycode, keyrecord_t *record) {
     case LT(3, KC_ENTER):
       return process_os_aware_number_layer(record, KC_ENTER);
     case MT(MOD_LALT, KC_S):
-      return process_os_aware_home_row_mod(record, KC_S, MOD_LALT, MOD_LGUI);
+      return process_os_aware_home_row_mod(record, KC_S, MOD_BIT_LALT, MOD_BIT_LGUI);
     case MT(MOD_LGUI, KC_D):
-      return process_os_aware_home_row_mod(record, KC_D, MOD_LGUI, MOD_LALT);
+      return process_os_aware_home_row_mod(record, KC_D, MOD_BIT_LGUI, MOD_BIT_LALT);
     case MT(MOD_RGUI, KC_K):
-      return process_os_aware_home_row_mod(record, KC_K, MOD_RGUI, MOD_RALT);
+      return process_os_aware_home_row_mod(record, KC_K, MOD_BIT_RGUI, MOD_BIT_RALT);
     case MT(MOD_RALT, KC_L):
-      return process_os_aware_home_row_mod(record, KC_L, MOD_RALT, MOD_RGUI);
+      return process_os_aware_home_row_mod(record, KC_L, MOD_BIT_RALT, MOD_BIT_RGUI);
     case KC_BSPC:
     case ALL_T(KC_BSPC):
     case MT(MOD_LALT, KC_BSPC):
