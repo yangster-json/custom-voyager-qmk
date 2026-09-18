@@ -86,17 +86,17 @@ combo_t key_combos[COMBO_COUNT] = {
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case MT(MOD_LCTL, KC_S):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_LALT, KC_D):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_LGUI, KC_F):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_RGUI, KC_J):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_RALT, KC_K):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_RCTL, KC_L):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_LGUI, KC_J):
             return TAPPING_TERM + 300;
         case MT(MOD_LGUI, KC_D):
@@ -108,25 +108,25 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case MT(MOD_RGUI, KC_K):
             return TAPPING_TERM + 300;
         case MT(MOD_LCTL, KC_2):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_LALT, KC_3):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_LGUI, KC_4):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_RGUI, KC_7):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_RALT, KC_8):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_RCTL, KC_9):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_LGUI, KC_3):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_LALT, KC_4):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_RALT, KC_7):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         case MT(MOD_RGUI, KC_8):
-            return TAPPING_TERM + 300;
+            return TAPPING_TERM + 50;
         default:
             return TAPPING_TERM;
     }
