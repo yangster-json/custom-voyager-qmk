@@ -109,6 +109,10 @@ static bool is_home_row_mod(uint16_t keycode) {
   }
 }
 
+static bool is_control_home_row_mod(uint16_t keycode) {
+  return keycode == MT(MOD_LCTL, KC_A) || keycode == MT(MOD_RCTL, KC_SCLN);
+}
+
 static bool is_thumb_cluster_key(keyrecord_t *record) {
   const uint8_t row = record->event.key.row;
   const uint8_t col = record->event.key.col;
@@ -119,6 +123,7 @@ static bool is_thumb_cluster_key(keyrecord_t *record) {
 bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record,
                       uint16_t other_keycode, keyrecord_t *other_record) {
   if (is_thumb_cluster_key(tap_hold_record) || is_thumb_cluster_key(other_record) ||
+      is_control_home_row_mod(tap_hold_keycode) ||
       (is_home_row_mod(tap_hold_keycode) && is_home_row_mod(other_keycode))) {
     return true;
   }
