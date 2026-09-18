@@ -95,6 +95,41 @@ static bool is_windows_or_macos(void) {
   return host_os == OS_WINDOWS || host_os == OS_MACOS;
 }
 
+static bool is_home_row_mod(uint16_t keycode) {
+  switch (keycode) {
+    case MT(MOD_LCTL, KC_A):
+    case MT(MOD_LALT, KC_S):
+    case MT(MOD_LGUI, KC_D):
+    case MT(MOD_RGUI, KC_K):
+    case MT(MOD_RALT, KC_L):
+    case MT(MOD_RCTL, KC_SCLN):
+      return true;
+    default:
+      return false;
+  }
+}
+
+static bool is_control_home_row_mod(uint16_t keycode) {
+  return keycode == MT(MOD_LCTL, KC_A) || keycode == MT(MOD_RCTL, KC_SCLN);
+}
+
+static bool is_thumb_cluster_key(keyrecord_t *record) {
+  const uint8_t row = record->event.key.row;
+  const uint8_t col = record->event.key.col;
+  return (row == 5 && (col == 0 || col == 1)) ||
+         (row == 11 && (col == 5 || col == 6));
+}
+
+bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record,
+                      uint16_t other_keycode, keyrecord_t *other_record) {
+  if (is_thumb_cluster_key(tap_hold_record) || is_thumb_cluster_key(other_record) ||
+      is_control_home_row_mod(tap_hold_keycode) ||
+      (is_home_row_mod(tap_hold_keycode) && is_home_row_mod(other_keycode))) {
+    return true;
+  }
+  return get_chordal_hold_default(tap_hold_record, other_record);
+}
+
 static bool process_os_aware_home_row_mod(keyrecord_t *record, uint16_t tap_keycode, uint8_t linux_mod, uint8_t windows_macos_mod) {
   if (record->tap.count > 0) {
     if (record->event.pressed) {
@@ -170,6 +205,8 @@ static bool process_custom_record(uint16_t keycode, keyrecord_t *record) {
       return process_os_aware_home_row_mod(record, KC_K, MOD_BIT_RGUI, MOD_BIT_RALT);
     case MT(MOD_RALT, KC_L):
       return process_os_aware_home_row_mod(record, KC_L, MOD_BIT_RALT, MOD_BIT_RGUI);
+    case MT(MOD_RCTL, KC_SCLN):
+      return process_os_aware_home_row_mod(record, KC_SCLN, MOD_BIT_RCTL, MOD_BIT_RCTL);
     case KC_BSPC:
     case ALL_T(KC_BSPC):
     case MT(MOD_LALT, KC_BSPC):
