@@ -135,7 +135,24 @@ static bool process_os_aware_space_layer(keyrecord_t *record) {
 }
 
 bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
-  return keycode == LT(3, KC_SPACE);
+  switch (keycode) {
+    case LT(3, KC_SPACE):
+    case MT(MOD_LCTL, KC_A):
+    case MT(MOD_LALT, KC_S):
+    case MT(MOD_LGUI, KC_D):
+    case MT(MOD_RGUI, KC_K):
+    case MT(MOD_RALT, KC_L):
+    case MT(MOD_RCTL, KC_SCLN):
+    case MT(MOD_LALT, KC_D):
+    case MT(MOD_LGUI, KC_F):
+    case MT(MOD_LGUI, KC_J):
+    case MT(MOD_RALT, KC_K):
+    case MT(MOD_LALT, KC_F):
+    case MT(MOD_RALT, KC_J):
+      return true;
+    default:
+      return false;
+  }
 }
 
 uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t *record, uint16_t prev_keycode) {
