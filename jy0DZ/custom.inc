@@ -115,12 +115,12 @@ static bool process_os_aware_home_row_mod(keyrecord_t *record, uint16_t tap_keyc
   return false;
 }
 
-static bool process_os_aware_space_layer(keyrecord_t *record) {
+static bool process_os_aware_number_layer(keyrecord_t *record, uint16_t tap_keycode) {
   if (record->tap.count > 0) {
     if (record->event.pressed) {
-      register_code16(KC_SPACE);
+      register_code16(tap_keycode);
     } else {
-      unregister_code16(KC_SPACE);
+      unregister_code16(tap_keycode);
     }
     return false;
   }
@@ -137,6 +137,7 @@ static bool process_os_aware_space_layer(keyrecord_t *record) {
 bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case LT(3, KC_SPACE):
+    case LT(5, KC_SPACE):
     case MT(MOD_LCTL, KC_A):
     case MT(MOD_LALT, KC_S):
     case MT(MOD_LGUI, KC_D):
@@ -156,7 +157,7 @@ bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
 }
 
 uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t *record, uint16_t prev_keycode) {
-  if (keycode == LT(3, KC_SPACE)) {
+  if (keycode == LT(3, KC_SPACE) || keycode == LT(5, KC_SPACE)) {
     return 75;
   }
   return is_flow_tap_key(keycode) && is_flow_tap_key(prev_keycode) ? FLOW_TAP_TERM : 0;
@@ -165,7 +166,9 @@ uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t *record, uint16_t prev_
 static bool process_custom_record(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case LT(3, KC_SPACE):
-      return process_os_aware_space_layer(record);
+      return process_os_aware_number_layer(record, KC_SPACE);
+    case LT(3, KC_ENTER):
+      return process_os_aware_number_layer(record, KC_ENTER);
     case MT(MOD_LALT, KC_S):
       return process_os_aware_home_row_mod(record, KC_S, MOD_LALT, MOD_LGUI);
     case MT(MOD_LGUI, KC_D):
