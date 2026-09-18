@@ -6,8 +6,6 @@ bool oryx_process_record_user(uint16_t keycode, keyrecord_t *record);
 
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
-    case LT(1, KC_SPACE):
-    case LT(2, KC_ENTER):
     case MT(MOD_RALT, KC_QUOTE):
     case ALL_T(KC_BSPC):
     case MT(MOD_LALT, KC_BSPC):
@@ -86,8 +84,73 @@ bool rgb_matrix_indicators_user(void) {
 static bool shifted_backspace_as_delete = false;
 static uint16_t tab_wm_mod_keycode = KC_LEFT_GUI;
 
+static bool is_windows_or_macos(void) {
+  const os_variant_t host_os = detected_host_os();
+  return host_os == OS_WINDOWS || host_os == OS_MACOS;
+}
+
+static bool process_os_aware_home_row_mod(keyrecord_t *record, uint16_t tap_keycode, uint8_t linux_mod, uint8_t windows_macos_mod) {
+  if (record->tap.count > 0) {
+    if (record->event.pressed) {
+      register_code16(tap_keycode);
+    } else {
+      unregister_code16(tap_keycode);
+    }
+    return false;
+  }
+
+  const uint8_t hold_mod = is_windows_or_macos() ? windows_macos_mod : linux_mod;
+  if (record->event.pressed) {
+    add_mods(hold_mod);
+  } else {
+    del_mods(hold_mod);
+  }
+  send_keyboard_report();
+  return false;
+}
+
+static bool process_os_aware_space_layer(keyrecord_t *record) {
+  if (record->tap.count > 0) {
+    if (record->event.pressed) {
+      register_code16(KC_SPACE);
+    } else {
+      unregister_code16(KC_SPACE);
+    }
+    return false;
+  }
+
+  const uint8_t layer = is_windows_or_macos() ? 4 : 3;
+  if (record->event.pressed) {
+    layer_on(layer);
+  } else {
+    layer_off(layer);
+  }
+  return false;
+}
+
+bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
+  return keycode == LT(3, KC_SPACE);
+}
+
+uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t *record, uint16_t prev_keycode) {
+  if (keycode == LT(3, KC_SPACE)) {
+    return 0;
+  }
+  return is_flow_tap_key(keycode) && is_flow_tap_key(prev_keycode) ? FLOW_TAP_TERM : 0;
+}
+
 static bool process_custom_record(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
+    case LT(3, KC_SPACE):
+      return process_os_aware_space_layer(record);
+    case MT(MOD_LALT, KC_D):
+      return process_os_aware_home_row_mod(record, KC_D, MOD_LALT, MOD_LGUI);
+    case MT(MOD_LGUI, KC_F):
+      return process_os_aware_home_row_mod(record, KC_F, MOD_LGUI, MOD_LALT);
+    case MT(MOD_RGUI, KC_J):
+      return process_os_aware_home_row_mod(record, KC_J, MOD_RGUI, MOD_RALT);
+    case MT(MOD_RALT, KC_K):
+      return process_os_aware_home_row_mod(record, KC_K, MOD_RALT, MOD_RGUI);
     case KC_BSPC:
     case ALL_T(KC_BSPC):
     case MT(MOD_LALT, KC_BSPC):
