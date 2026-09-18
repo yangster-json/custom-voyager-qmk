@@ -87,6 +87,8 @@ combo_t key_combos[COMBO_COUNT] = {
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
+        case MT(MOD_LCTL, KC_A):
+            return TAPPING_TERM + 50;
         case MT(MOD_LALT, KC_S):
             return TAPPING_TERM + 50;
         case MT(MOD_LGUI, KC_D):
@@ -98,6 +100,8 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case MT(MOD_RGUI, KC_K):
             return TAPPING_TERM + 50;
         case MT(MOD_RALT, KC_L):
+            return TAPPING_TERM + 50;
+        case MT(MOD_RCTL, KC_SCLN):
             return TAPPING_TERM + 50;
         case MT(MOD_LALT, KC_D):
             return TAPPING_TERM + 50;
@@ -111,6 +115,8 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
             return TAPPING_TERM + 300;
         case MT(MOD_RALT, KC_J):
             return TAPPING_TERM + 300;
+        case MT(MOD_LCTL, KC_1):
+            return TAPPING_TERM + 50;
         case MT(MOD_LALT, KC_2):
             return TAPPING_TERM + 50;
         case MT(MOD_LGUI, KC_3):
@@ -122,6 +128,8 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case MT(MOD_RGUI, KC_8):
             return TAPPING_TERM + 50;
         case MT(MOD_RALT, KC_9):
+            return TAPPING_TERM + 50;
+        case MT(MOD_RCTL, KC_0):
             return TAPPING_TERM + 50;
         case MT(MOD_LGUI, KC_2):
             return TAPPING_TERM + 50;
