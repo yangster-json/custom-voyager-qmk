@@ -6,12 +6,12 @@ bool oryx_process_record_user(uint16_t keycode, keyrecord_t *record);
 
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
-    case MT(MOD_LCTL, KC_S):
+    case MT(MOD_LCTL, KC_A):
+    case MT(MOD_LALT, KC_S):
     case MT(MOD_LGUI, KC_D):
-    case MT(MOD_LALT, KC_F):
-    case MT(MOD_RALT, KC_J):
     case MT(MOD_RGUI, KC_K):
-    case MT(MOD_RCTL, KC_L):
+    case MT(MOD_RALT, KC_L):
+    case MT(MOD_RCTL, KC_SCLN):
     case MT(MOD_RALT, KC_QUOTE):
     case ALL_T(KC_BSPC):
     case MT(MOD_LALT, KC_BSPC):
@@ -140,7 +140,7 @@ bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
 
 uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t *record, uint16_t prev_keycode) {
   if (keycode == LT(3, KC_SPACE)) {
-    return 0;
+    return 75;
   }
   return is_flow_tap_key(keycode) && is_flow_tap_key(prev_keycode) ? FLOW_TAP_TERM : 0;
 }
@@ -149,14 +149,14 @@ static bool process_custom_record(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case LT(3, KC_SPACE):
       return process_os_aware_space_layer(record);
+    case MT(MOD_LALT, KC_S):
+      return process_os_aware_home_row_mod(record, KC_S, MOD_LALT, MOD_LGUI);
     case MT(MOD_LGUI, KC_D):
       return process_os_aware_home_row_mod(record, KC_D, MOD_LGUI, MOD_LALT);
-    case MT(MOD_LALT, KC_F):
-      return process_os_aware_home_row_mod(record, KC_F, MOD_LALT, MOD_LGUI);
-    case MT(MOD_RALT, KC_J):
-      return process_os_aware_home_row_mod(record, KC_J, MOD_RALT, MOD_RGUI);
     case MT(MOD_RGUI, KC_K):
       return process_os_aware_home_row_mod(record, KC_K, MOD_RGUI, MOD_RALT);
+    case MT(MOD_RALT, KC_L):
+      return process_os_aware_home_row_mod(record, KC_L, MOD_RALT, MOD_RGUI);
     case KC_BSPC:
     case ALL_T(KC_BSPC):
     case MT(MOD_LALT, KC_BSPC):
