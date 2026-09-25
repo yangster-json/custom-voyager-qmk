@@ -126,23 +126,34 @@ bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record,
   return get_chordal_hold_default(tap_hold_record, other_record);
 }
 
+static uint8_t os_aware_home_row_held_mods[MATRIX_ROWS][MATRIX_COLS];
+
 static bool process_os_aware_home_row_mod(keyrecord_t *record, uint16_t tap_keycode, uint8_t linux_mod, uint8_t windows_macos_mod) {
+  uint8_t *const held_mod = &os_aware_home_row_held_mods[record->event.key.row][record->event.key.col];
+
   if (record->tap.count > 0) {
     if (record->event.pressed) {
       register_code16(tap_keycode);
     } else {
+      if (*held_mod) {
+        unregister_mods(*held_mod);
+        *held_mod = 0;
+      }
       unregister_code16(tap_keycode);
     }
     return false;
   }
 
-  const uint8_t hold_mod = uses_windows_macos_modifiers() ? windows_macos_mod : linux_mod;
   if (record->event.pressed) {
-    add_mods(hold_mod);
-  } else {
-    del_mods(hold_mod);
+    if (*held_mod) {
+      unregister_mods(*held_mod);
+    }
+    *held_mod = uses_windows_macos_modifiers() ? windows_macos_mod : linux_mod;
+    register_mods(*held_mod);
+  } else if (*held_mod) {
+    unregister_mods(*held_mod);
+    *held_mod = 0;
   }
-  send_keyboard_report();
   return false;
 }
 
@@ -202,8 +213,6 @@ static bool process_custom_record(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
     case LT(3, KC_SPACE):
       return process_os_aware_number_layer(record, KC_SPACE);
-    case MT(MOD_LCTL, KC_A):
-      return process_os_aware_home_row_mod(record, KC_A, MOD_BIT_LCTRL, MOD_BIT_LCTRL);
     case MT(MOD_LALT, KC_S):
       return process_os_aware_home_row_mod(record, KC_S, MOD_BIT_LALT, MOD_BIT_LGUI);
     case MT(MOD_LGUI, KC_D):
@@ -212,8 +221,6 @@ static bool process_custom_record(uint16_t keycode, keyrecord_t *record) {
       return process_os_aware_home_row_mod(record, KC_K, MOD_BIT_RGUI, MOD_BIT_RALT);
     case MT(MOD_RALT, KC_L):
       return process_os_aware_home_row_mod(record, KC_L, MOD_BIT_RALT, MOD_BIT_RGUI);
-    case MT(MOD_RCTL, KC_SCLN):
-      return process_os_aware_home_row_mod(record, KC_SCLN, MOD_BIT_RCTRL, MOD_BIT_RCTRL);
     case QK_MODS ... QK_MODS_MAX:
       if (IS_MOUSE_KEYCODE(QK_MODS_GET_BASIC_KEYCODE(keycode)) || IS_CONSUMER_KEYCODE(QK_MODS_GET_BASIC_KEYCODE(keycode))) {
         if (record->event.pressed) {
