@@ -90,6 +90,7 @@ bool rgb_matrix_indicators_user(void) {
 }
 
 static uint16_t tab_wm_mod_keycode = KC_LEFT_GUI;
+static uint8_t number_layer_state[MATRIX_ROWS][MATRIX_COLS];
 
 static bool uses_windows_macos_modifiers(void) {
   return detected_host_os() != OS_LINUX;
@@ -168,6 +169,8 @@ uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t *record, uint16_t prev_
 }
 
 static bool process_os_aware_number_layer(keyrecord_t *record, uint16_t tap_keycode) {
+  uint8_t *held_layer = &number_layer_state[record->event.key.row][record->event.key.col];
+
   if (record->tap.count > 0) {
     if (record->event.pressed) {
       register_code16(tap_keycode);
@@ -177,11 +180,12 @@ static bool process_os_aware_number_layer(keyrecord_t *record, uint16_t tap_keyc
     return false;
   }
 
-  const uint8_t layer = uses_windows_macos_modifiers() ? 4 : 3;
   if (record->event.pressed) {
-    layer_on(layer);
+    *held_layer = uses_windows_macos_modifiers() ? 4 : 3;
+    layer_on(*held_layer);
   } else {
-    layer_off(layer);
+    layer_off(*held_layer);
+    *held_layer = 0;
   }
   return false;
 }
