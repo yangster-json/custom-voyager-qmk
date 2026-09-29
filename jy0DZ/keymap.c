@@ -45,12 +45,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 
 const uint16_t PROGMEM combo0[] = { KC_R, KC_T, COMBO_END};
-const uint16_t PROGMEM combo1[] = { KC_F, KC_G, COMBO_END};
+const uint16_t PROGMEM combo1[] = { KC_G, KC_F, COMBO_END};
 const uint16_t PROGMEM combo2[] = { KC_V, KC_B, COMBO_END};
 const uint16_t PROGMEM combo3[] = { KC_Y, KC_U, COMBO_END};
 const uint16_t PROGMEM combo4[] = { KC_H, KC_J, COMBO_END};
 const uint16_t PROGMEM combo5[] = { KC_N, KC_M, COMBO_END};
-const uint16_t PROGMEM combo6[] = { KC_J, MT(MOD_RGUI, KC_K), COMBO_END};
+const uint16_t PROGMEM combo6[] = { MT(MOD_RGUI, KC_K), KC_J, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
     COMBO(combo0, KC_LPRN),
@@ -64,10 +64,6 @@ combo_t key_combos[COMBO_COUNT] = {
 
 uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
-        case KC_F:
-            return TAPPING_TERM + 50;
-        case KC_J:
-            return TAPPING_TERM + 50;
         case LT(1, KC_SPACE):
             return TAPPING_TERM -50;
         case KC_4:
