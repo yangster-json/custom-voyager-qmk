@@ -2,25 +2,10 @@
 
 extern rgb_config_t rgb_matrix_config;
 extern const uint8_t PROGMEM ledmap[][RGB_MATRIX_LED_COUNT][3];
-bool oryx_process_record_user(uint16_t keycode, keyrecord_t *record);
 
+// oryx forces this on; mod-taps with it can stick
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case MT(MOD_LCTL, KC_A):
-    case MT(MOD_LALT, KC_S):
-    case MT(MOD_LGUI, KC_D):
-    case MT(MOD_RGUI, KC_K):
-    case MT(MOD_RALT, KC_L):
-    case MT(MOD_RCTL, KC_SCLN):
-    case MT(MOD_RALT, KC_QUOTE):
-    case LT(3, KC_SPACE):
-    case LT(4, KC_SPACE):
-    case ALL_T(KC_BSPC):
-    case MT(MOD_LALT, KC_BSPC):
-      return false;
-    default:
-      return true;
-  }
+  return false;
 }
 
 #define VOYAGER_LED_RED_GAIN_PERCENT 90
@@ -73,9 +58,6 @@ bool rgb_matrix_indicators_user(void) {
       case 1:
       case 2:
       case 3:
-      case 4:
-      case 5:
-      case 6:
         set_custom_layer_color(biton32(layer_state));
         break;
       default:
@@ -89,11 +71,12 @@ bool rgb_matrix_indicators_user(void) {
   return true;
 }
 
-static uint16_t tab_wm_mod_keycode = KC_LEFT_GUI;
-static uint8_t number_layer_state[MATRIX_ROWS][MATRIX_COLS];
-
-static bool uses_windows_macos_modifiers(void) {
-  return detected_host_os() != OS_LINUX;
+// swap alt/gui on every mod-tap for non-linux
+bool process_detected_host_os_user(os_variant_t os) {
+  const bool swap = os != OS_LINUX;
+  keymap_config.swap_lalt_lgui = swap;
+  keymap_config.swap_ralt_rgui = swap;
+  return true;
 }
 
 static bool is_home_row_mod(uint16_t keycode) {
@@ -127,138 +110,29 @@ bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t *tap_hold_record,
   return get_chordal_hold_default(tap_hold_record, other_record);
 }
 
-static uint8_t os_aware_home_row_held_mods[MATRIX_ROWS][MATRIX_COLS];
-
-static bool process_os_aware_home_row_mod(keyrecord_t *record, uint16_t tap_keycode, uint8_t linux_mod, uint8_t windows_macos_mod) {
-  uint8_t *const held_mod = &os_aware_home_row_held_mods[record->event.key.row][record->event.key.col];
-
-  if (record->tap.count > 0) {
-    if (record->event.pressed) {
-      register_code16(tap_keycode);
-    } else {
-      if (*held_mod) {
-        unregister_mods(*held_mod);
-        *held_mod = 0;
-      }
-      unregister_code16(tap_keycode);
-    }
-    return false;
-  }
-
-  if (record->event.pressed) {
-    if (*held_mod) {
-      unregister_mods(*held_mod);
-    }
-    *held_mod = uses_windows_macos_modifiers() ? windows_macos_mod : linux_mod;
-    register_mods(*held_mod);
-  } else if (*held_mod) {
-    unregister_mods(*held_mod);
-    *held_mod = 0;
-  }
-  return false;
-}
-
 uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t *record, uint16_t prev_keycode) {
   switch (keycode) {
-    case LT(3, KC_SPACE):
-    case LT(4, KC_SPACE):
+    case LT(1, KC_SPACE):
       return 0;
     default:
       return is_flow_tap_key(keycode) && is_flow_tap_key(prev_keycode) ? FLOW_TAP_TERM : 0;
   }
 }
 
-static bool process_os_aware_number_layer(keyrecord_t *record, uint16_t tap_keycode) {
-  uint8_t *held_layer = &number_layer_state[record->event.key.row][record->event.key.col];
-
-  if (record->tap.count > 0) {
-    if (record->event.pressed) {
-      register_code16(tap_keycode);
-    } else {
-      unregister_code16(tap_keycode);
-    }
-    return false;
-  }
-
-  if (record->event.pressed) {
-    *held_layer = uses_windows_macos_modifiers() ? 4 : 3;
-    layer_on(*held_layer);
-  } else {
-    layer_off(*held_layer);
-    *held_layer = 0;
-  }
-  return false;
-}
-
 bool get_retro_tapping(uint16_t keycode, keyrecord_t *record) {
   switch (keycode) {
-    case LT(3, KC_SPACE):
-    case LT(4, KC_SPACE):
-    case LT(5, KC_ENTER):
+    case LT(1, KC_SPACE):
+    case LT(2, KC_ENTER):
     case MT(MOD_LCTL, KC_A):
     case MT(MOD_LALT, KC_S):
     case MT(MOD_LGUI, KC_D):
     case MT(MOD_RGUI, KC_K):
     case MT(MOD_RALT, KC_L):
     case MT(MOD_RCTL, KC_SCLN):
-    case MT(MOD_LALT, KC_D):
-    case MT(MOD_LGUI, KC_F):
-    case MT(MOD_LGUI, KC_J):
-    case MT(MOD_RALT, KC_K):
-    case MT(MOD_LALT, KC_F):
-    case MT(MOD_RALT, KC_J):
       return true;
     default:
       return false;
   }
 }
 
-static bool process_custom_record(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case LT(3, KC_SPACE):
-      return process_os_aware_number_layer(record, KC_SPACE);
-    case MT(MOD_LALT, KC_S):
-      return process_os_aware_home_row_mod(record, KC_S, MOD_BIT_LALT, MOD_BIT_LGUI);
-    case MT(MOD_LGUI, KC_D):
-      return process_os_aware_home_row_mod(record, KC_D, MOD_BIT_LGUI, MOD_BIT_LALT);
-    case MT(MOD_RGUI, KC_K):
-      return process_os_aware_home_row_mod(record, KC_K, MOD_BIT_RGUI, MOD_BIT_RALT);
-    case MT(MOD_RALT, KC_L):
-      return process_os_aware_home_row_mod(record, KC_L, MOD_BIT_RALT, MOD_BIT_RGUI);
-    case QK_MODS ... QK_MODS_MAX:
-      if (IS_MOUSE_KEYCODE(QK_MODS_GET_BASIC_KEYCODE(keycode)) || IS_CONSUMER_KEYCODE(QK_MODS_GET_BASIC_KEYCODE(keycode))) {
-        if (record->event.pressed) {
-          add_mods(QK_MODS_GET_MODS(keycode));
-          send_keyboard_report();
-          wait_ms(2);
-          register_code(QK_MODS_GET_BASIC_KEYCODE(keycode));
-          return false;
-        }
-        wait_ms(2);
-        del_mods(QK_MODS_GET_MODS(keycode));
-      }
-      return true;
-    case MT(MOD_LGUI, KC_TAB):
-      if (record->tap.count > 0) {
-        if (record->event.pressed) register_code16(KC_TAB); else unregister_code16(KC_TAB);
-      } else if (record->event.pressed) {
-        tab_wm_mod_keycode = detected_host_os() == OS_WINDOWS ? KC_LEFT_ALT : KC_LEFT_GUI;
-        register_code16(tab_wm_mod_keycode);
-      } else {
-        unregister_code16(tab_wm_mod_keycode);
-      }
-      return false;
-    default:
-      return true;
-  }
-}
-
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  if (!process_custom_record(keycode, record)) {
-    return false;
-  }
-  return oryx_process_record_user(keycode, record);
-}
-
-#define process_record_user oryx_process_record_user
 #define rgb_matrix_indicators_user oryx_rgb_matrix_indicators_user
