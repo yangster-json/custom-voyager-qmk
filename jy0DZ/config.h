@@ -8,10 +8,12 @@
 #define PERMISSIVE_HOLD
 #define CHORDAL_HOLD
 
+#define COMBO_TERM 80
+
 #define USB_SUSPEND_WAKEUP_DELAY 0
 #define CAPS_LOCK_STATUS
 #define HOLD_ON_OTHER_KEY_PRESS
-#define SERIAL_NUMBER "jy0DZ/nlzBgW"
+#define SERIAL_NUMBER "jy0DZ/dPlaNX"
 #define LAYER_STATE_8BIT
 #define COMBO_COUNT 7
 
